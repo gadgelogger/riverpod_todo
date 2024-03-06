@@ -14,14 +14,20 @@ T _$identity<T>(T value) => value;
 final _privateConstructorUsedError = UnsupportedError(
     'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
 
+Todo _$TodoFromJson(Map<String, dynamic> json) {
+  return _Todo.fromJson(json);
+}
+
 /// @nodoc
 mixin _$Todo {
   String get todoId => throw _privateConstructorUsedError;
-  String get title => throw _privateConstructorUsedError; // 初期値を設定できる
-  bool get isCompleted => throw _privateConstructorUsedError;
+  String get title => throw _privateConstructorUsedError;
+  bool get isCompleted => throw _privateConstructorUsedError; // これを追加
+  @DateTimeTimestampConverter()
   DateTime get createdAt => throw _privateConstructorUsedError;
   String get content => throw _privateConstructorUsedError;
 
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
   $TodoCopyWith<Todo> get copyWith => throw _privateConstructorUsedError;
 }
@@ -35,7 +41,7 @@ abstract class $TodoCopyWith<$Res> {
       {String todoId,
       String title,
       bool isCompleted,
-      DateTime createdAt,
+      @DateTimeTimestampConverter() DateTime createdAt,
       String content});
 }
 
@@ -94,7 +100,7 @@ abstract class _$$TodoImplCopyWith<$Res> implements $TodoCopyWith<$Res> {
       {String todoId,
       String title,
       bool isCompleted,
-      DateTime createdAt,
+      @DateTimeTimestampConverter() DateTime createdAt,
       String content});
 }
 
@@ -140,24 +146,28 @@ class __$$TodoImplCopyWithImpl<$Res>
 }
 
 /// @nodoc
-
+@JsonSerializable()
 class _$TodoImpl implements _Todo {
   _$TodoImpl(
       {required this.todoId,
       required this.title,
       this.isCompleted = false,
-      required this.createdAt,
+      @DateTimeTimestampConverter() required this.createdAt,
       required this.content});
+
+  factory _$TodoImpl.fromJson(Map<String, dynamic> json) =>
+      _$$TodoImplFromJson(json);
 
   @override
   final String todoId;
   @override
   final String title;
-// 初期値を設定できる
   @override
   @JsonKey()
   final bool isCompleted;
+// これを追加
   @override
+  @DateTimeTimestampConverter()
   final DateTime createdAt;
   @override
   final String content;
@@ -181,6 +191,7 @@ class _$TodoImpl implements _Todo {
             (identical(other.content, content) || other.content == content));
   }
 
+  @JsonKey(ignore: true)
   @override
   int get hashCode =>
       Object.hash(runtimeType, todoId, title, isCompleted, createdAt, content);
@@ -190,6 +201,13 @@ class _$TodoImpl implements _Todo {
   @pragma('vm:prefer-inline')
   _$$TodoImplCopyWith<_$TodoImpl> get copyWith =>
       __$$TodoImplCopyWithImpl<_$TodoImpl>(this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$TodoImplToJson(
+      this,
+    );
+  }
 }
 
 abstract class _Todo implements Todo {
@@ -197,16 +215,19 @@ abstract class _Todo implements Todo {
       {required final String todoId,
       required final String title,
       final bool isCompleted,
-      required final DateTime createdAt,
+      @DateTimeTimestampConverter() required final DateTime createdAt,
       required final String content}) = _$TodoImpl;
+
+  factory _Todo.fromJson(Map<String, dynamic> json) = _$TodoImpl.fromJson;
 
   @override
   String get todoId;
   @override
   String get title;
-  @override // 初期値を設定できる
-  bool get isCompleted;
   @override
+  bool get isCompleted;
+  @override // これを追加
+  @DateTimeTimestampConverter()
   DateTime get createdAt;
   @override
   String get content;
