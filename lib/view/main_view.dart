@@ -24,7 +24,6 @@ class TodoInputField extends ConsumerWidget {
         createdAt: DateTime.now(),
       );
 
-      // Firestoreに追加
       addTodoToFirestore(todo);
       FocusScope.of(context).requestFocus(todoContentTextFocusNode);
     }
