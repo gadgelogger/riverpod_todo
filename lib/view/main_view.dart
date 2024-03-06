@@ -5,17 +5,14 @@ import 'package:intl/intl.dart';
 import 'package:riverpod_todo/controller/todo_provider.dart';
 import 'package:riverpod_todo/model/todo.dart';
 
-class TodoListPage extends ConsumerWidget {
-  final todoContentTextController = TextEditingController();
-  final todoContentTextFocusNode = FocusNode();
-  TodoListPage({super.key});
+class TodoInputField extends ConsumerWidget {
+  const TodoInputField({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final todoList = ref.watch(todoListProvider);
-    final todoListNotifier = ref.read(todoListProvider.notifier);
+    final todoContentTextController = TextEditingController();
+    final todoContentTextFocusNode = FocusNode();
 
-    // 追加ボタン押下
     void onPressedAddButton() {
       final title = todoContentTextController.text;
       todoContentTextController.clear();
@@ -32,82 +29,101 @@ class TodoListPage extends ConsumerWidget {
       FocusScope.of(context).requestFocus(todoContentTextFocusNode);
     }
 
-    void onPressedDeleteButton(int index) {
-      todoListNotifier.removeTodo(todoList[index].todoId);
-    }
-
-    void onPressedToggleButton(int index) {
-      todoListNotifier.toggleCompleted(todoList[index].todoId);
-    }
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Todo'),
+    return Padding(
+      padding: const EdgeInsets.all(10),
+      child: Row(
+        children: [
+          Expanded(
+            child: TextField(
+              controller: todoContentTextController,
+              focusNode: todoContentTextFocusNode,
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.add),
+            onPressed: onPressedAddButton,
+          ),
+        ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(10),
-        child: Column(
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: todoContentTextController,
-                    focusNode: todoContentTextFocusNode,
-                  ),
+    );
+  }
+}
+
+class TodoList extends StatelessWidget {
+  const TodoList({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance
+          .collection('todos')
+          .orderBy('createdAt')
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return const Text('Error');
+        }
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const CircularProgressIndicator();
+        }
+
+        final todos = snapshot.data!.docs.map((DocumentSnapshot document) {
+          final data = document.data()! as Map<String, dynamic>;
+          return Todo.fromJson(data..['todoId'] = document.id);
+        }).toList();
+
+        return ListView.builder(
+          itemCount: todos.length,
+          itemBuilder: (context, index) {
+            final todo = todos[index];
+            final formattedDate =
+                DateFormat('yyyy年MM月dd日 HH:mm').format(todo.createdAt);
+            return Dismissible(
+              key: Key(todo.todoId),
+              background: Container(color: Colors.red),
+              onDismissed: (direction) {
+                deleteTodoFromFirestore(todo.todoId);
+              },
+              child: ListTile(
+                title: Text(todo.title),
+                subtitle: Text(formattedDate),
+                trailing: Checkbox(
+                  value: todo.isCompleted,
+                  onChanged: (bool? newValue) {
+                    toggleTodoCompleted(todo.todoId, todo.isCompleted);
+                  },
                 ),
-                ElevatedButton(
-                  onPressed: onPressedAddButton,
-                  child: const Icon(Icons.add),
-                ),
-              ],
-            ),
-            const SizedBox(
-              height: 20,
-            ),
-            Expanded(
-              child: StreamBuilder<QuerySnapshot>(
-                stream:
-                    FirebaseFirestore.instance.collection('todos').snapshots(),
-                builder: (
-                  BuildContext context,
-                  AsyncSnapshot<QuerySnapshot> snapshot,
-                ) {
-                  if (snapshot.hasError) {
-                    return const Text('Error');
-                  }
-
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const CircularProgressIndicator();
-                  }
-
-                  // FirestoreのドキュメントからTodoリストを作成
-                  final todos =
-                      snapshot.data!.docs.map((DocumentSnapshot document) {
-                    final data = document.data()! as Map<String, dynamic>;
-                    return Todo.fromJson(
-                      data,
-                    ); // `Todo.fromJson`メソッドを適切に実装する必要があります
-                  }).toList();
-
-                  return ListView.builder(
-                    itemCount: todos.length,
-                    itemBuilder: (context, index) {
-                      final todo = todos[index];
-                      final formattedDate = DateFormat('yyyy年MM月dd日 HH:mm')
-                          .format(todos[index].createdAt);
-                      return ListTile(
-                        title: Text(todo.title),
-                        subtitle: Text(formattedDate),
-                      );
-                    },
-                  );
-                },
               ),
-            ),
-          ],
-        ),
-      ),
+            );
+          },
+        );
+      },
+    );
+  }
+}
+
+class TodoListPage extends ConsumerWidget {
+  const TodoListPage({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Todo')),
+      body: const TodoListView(),
+    );
+  }
+}
+
+class TodoListView extends StatelessWidget {
+  const TodoListView({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Column(
+      children: [
+        TodoInputField(),
+        Expanded(child: TodoList()),
+      ],
     );
   }
 }

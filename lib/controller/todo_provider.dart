@@ -11,6 +11,15 @@ Future<void> addTodoToFirestore(Todo todo) async {
   await collection.doc(todo.todoId).set(todo.toJson());
 }
 
+Future<void> deleteTodoFromFirestore(String todoId) async {
+  await FirebaseFirestore.instance.collection('todos').doc(todoId).delete();
+}
+
+Future<void> toggleTodoCompleted(String docId, bool isCompleted) async {
+  final document = FirebaseFirestore.instance.collection('todos').doc(docId);
+  await document.update({'isCompleted': !isCompleted});
+}
+
 class TodoListNotifier extends Notifier<List<Todo>> {
   void addTodo(Todo todo) {
     state = [...state, todo];
