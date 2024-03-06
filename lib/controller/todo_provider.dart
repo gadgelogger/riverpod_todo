@@ -15,10 +15,6 @@ class TodoListNotifier extends Notifier<List<Todo>> {
     return [];
   }
 
-  void clearCompleted() {
-    state = state.where((todo) => !todo.isCompleted).toList();
-  }
-
   void removeTodo(String id) {
     state = state.where((todo) => todo.todoId != id).toList();
   }
