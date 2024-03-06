@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -16,23 +17,18 @@ class TodoListPage extends ConsumerWidget {
 
     // 追加ボタン押下
     void onPressedAddButton() {
-      final content = todoContentTextController.text;
-
+      final title = todoContentTextController.text;
       todoContentTextController.clear();
-
-      final id = (todoList.isEmpty)
-          ? '1'
-          : (int.parse(todoList.last.todoId) + 1).toString();
+      final docId = FirebaseFirestore.instance.collection('todo').doc().id;
 
       final todo = Todo(
-        todoId: id,
-        title: '',
+        todoId: docId,
+        title: title,
         createdAt: DateTime.now(),
-        content: content,
       );
 
-      todoListNotifier.addTodo(todo);
-
+      // Firestoreに追加
+      addTodoToFirestore(todo);
       FocusScope.of(context).requestFocus(todoContentTextFocusNode);
     }
 
@@ -70,33 +66,41 @@ class TodoListPage extends ConsumerWidget {
               height: 20,
             ),
             Expanded(
-              child: ListView.builder(
-                itemCount: todoList.length,
-                itemBuilder: (BuildContext context, int index) {
-                  final formattedDate = DateFormat('yyyy/MM/dd HH:mm:ss')
-                      .format(todoList[index].createdAt);
-                  return Dismissible(
-                    key: Key(todoList[index].todoId),
-                    onDismissed: (direction) {
-                      onPressedDeleteButton(index);
+              child: StreamBuilder<QuerySnapshot>(
+                stream:
+                    FirebaseFirestore.instance.collection('todos').snapshots(),
+                builder: (
+                  BuildContext context,
+                  AsyncSnapshot<QuerySnapshot> snapshot,
+                ) {
+                  if (snapshot.hasError) {
+                    return const Text('Error');
+                  }
+
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const CircularProgressIndicator();
+                  }
+
+                  // FirestoreのドキュメントからTodoリストを作成
+                  final todos =
+                      snapshot.data!.docs.map((DocumentSnapshot document) {
+                    final data = document.data()! as Map<String, dynamic>;
+                    return Todo.fromJson(
+                      data,
+                    ); // `Todo.fromJson`メソッドを適切に実装する必要があります
+                  }).toList();
+
+                  return ListView.builder(
+                    itemCount: todos.length,
+                    itemBuilder: (context, index) {
+                      final todo = todos[index];
+                      final formattedDate = DateFormat('yyyy年MM月dd日 HH:mm')
+                          .format(todos[index].createdAt);
+                      return ListTile(
+                        title: Text(todo.title),
+                        subtitle: Text(formattedDate),
+                      );
                     },
-                    background: Container(
-                      color: Colors.red,
-                      alignment: Alignment.centerRight,
-                      padding: const EdgeInsets.only(right: 16),
-                      child: const Icon(
-                        Icons.delete,
-                        color: Colors.white,
-                      ),
-                    ),
-                    child: ListTile(
-                      title: Text(todoList[index].content),
-                      subtitle: Text(formattedDate),
-                      trailing: Checkbox(
-                        value: todoList[index].isCompleted,
-                        onChanged: (_) => onPressedToggleButton(index),
-                      ),
-                    ),
                   );
                 },
               ),

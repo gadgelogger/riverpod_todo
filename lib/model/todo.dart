@@ -10,7 +10,6 @@ class Todo with _$Todo {
   factory Todo({
     required String todoId,
     required String title,
-    required String content,
     @Default(false) bool isCompleted,
     // これを追加
     @DateTimeTimestampConverter() required DateTime createdAt,

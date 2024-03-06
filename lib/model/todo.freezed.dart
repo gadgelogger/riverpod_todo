@@ -25,7 +25,6 @@ mixin _$Todo {
   bool get isCompleted => throw _privateConstructorUsedError; // これを追加
   @DateTimeTimestampConverter()
   DateTime get createdAt => throw _privateConstructorUsedError;
-  String get content => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -41,8 +40,7 @@ abstract class $TodoCopyWith<$Res> {
       {String todoId,
       String title,
       bool isCompleted,
-      @DateTimeTimestampConverter() DateTime createdAt,
-      String content});
+      @DateTimeTimestampConverter() DateTime createdAt});
 }
 
 /// @nodoc
@@ -62,7 +60,6 @@ class _$TodoCopyWithImpl<$Res, $Val extends Todo>
     Object? title = null,
     Object? isCompleted = null,
     Object? createdAt = null,
-    Object? content = null,
   }) {
     return _then(_value.copyWith(
       todoId: null == todoId
@@ -81,10 +78,6 @@ class _$TodoCopyWithImpl<$Res, $Val extends Todo>
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
               as DateTime,
-      content: null == content
-          ? _value.content
-          : content // ignore: cast_nullable_to_non_nullable
-              as String,
     ) as $Val);
   }
 }
@@ -100,8 +93,7 @@ abstract class _$$TodoImplCopyWith<$Res> implements $TodoCopyWith<$Res> {
       {String todoId,
       String title,
       bool isCompleted,
-      @DateTimeTimestampConverter() DateTime createdAt,
-      String content});
+      @DateTimeTimestampConverter() DateTime createdAt});
 }
 
 /// @nodoc
@@ -118,7 +110,6 @@ class __$$TodoImplCopyWithImpl<$Res>
     Object? title = null,
     Object? isCompleted = null,
     Object? createdAt = null,
-    Object? content = null,
   }) {
     return _then(_$TodoImpl(
       todoId: null == todoId
@@ -137,10 +128,6 @@ class __$$TodoImplCopyWithImpl<$Res>
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
               as DateTime,
-      content: null == content
-          ? _value.content
-          : content // ignore: cast_nullable_to_non_nullable
-              as String,
     ));
   }
 }
@@ -152,8 +139,7 @@ class _$TodoImpl implements _Todo {
       {required this.todoId,
       required this.title,
       this.isCompleted = false,
-      @DateTimeTimestampConverter() required this.createdAt,
-      required this.content});
+      @DateTimeTimestampConverter() required this.createdAt});
 
   factory _$TodoImpl.fromJson(Map<String, dynamic> json) =>
       _$$TodoImplFromJson(json);
@@ -169,12 +155,10 @@ class _$TodoImpl implements _Todo {
   @override
   @DateTimeTimestampConverter()
   final DateTime createdAt;
-  @override
-  final String content;
 
   @override
   String toString() {
-    return 'Todo(todoId: $todoId, title: $title, isCompleted: $isCompleted, createdAt: $createdAt, content: $content)';
+    return 'Todo(todoId: $todoId, title: $title, isCompleted: $isCompleted, createdAt: $createdAt)';
   }
 
   @override
@@ -187,14 +171,13 @@ class _$TodoImpl implements _Todo {
             (identical(other.isCompleted, isCompleted) ||
                 other.isCompleted == isCompleted) &&
             (identical(other.createdAt, createdAt) ||
-                other.createdAt == createdAt) &&
-            (identical(other.content, content) || other.content == content));
+                other.createdAt == createdAt));
   }
 
   @JsonKey(ignore: true)
   @override
   int get hashCode =>
-      Object.hash(runtimeType, todoId, title, isCompleted, createdAt, content);
+      Object.hash(runtimeType, todoId, title, isCompleted, createdAt);
 
   @JsonKey(ignore: true)
   @override
@@ -212,11 +195,11 @@ class _$TodoImpl implements _Todo {
 
 abstract class _Todo implements Todo {
   factory _Todo(
-      {required final String todoId,
-      required final String title,
-      final bool isCompleted,
-      @DateTimeTimestampConverter() required final DateTime createdAt,
-      required final String content}) = _$TodoImpl;
+          {required final String todoId,
+          required final String title,
+          final bool isCompleted,
+          @DateTimeTimestampConverter() required final DateTime createdAt}) =
+      _$TodoImpl;
 
   factory _Todo.fromJson(Map<String, dynamic> json) = _$TodoImpl.fromJson;
 
@@ -229,8 +212,6 @@ abstract class _Todo implements Todo {
   @override // これを追加
   @DateTimeTimestampConverter()
   DateTime get createdAt;
-  @override
-  String get content;
   @override
   @JsonKey(ignore: true)
   _$$TodoImplCopyWith<_$TodoImpl> get copyWith =>
