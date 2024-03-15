@@ -14,7 +14,7 @@ Future<void> toggleTodoCompleted(String docId, bool isCompleted) async {
   final document = FirebaseFirestore.instance.collection('todos').doc(docId);
   await document.update({'isCompleted': !isCompleted});
 }
-//StateNotifierクラス要らなくなる説
+//Firebaseを使わない場合のコードです。
 // class TodoListNotifier extends Notifier<List<Todo>> {
 //   final todoListProvider = NotifierProvider<TodoListNotifier, List<Todo>>(
 //     TodoListNotifier.new,
